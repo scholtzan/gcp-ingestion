@@ -4,12 +4,15 @@
 
 package com.mozilla.telemetry.ingestion.io;
 
+import static java.util.logging.Level.WARNING;
+
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.pubsub.v1.ProjectSubscriptionName;
 import com.google.pubsub.v1.PubsubMessage;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 public class Pubsub {
 
@@ -17,6 +20,8 @@ public class Pubsub {
   }
 
   public static class Read {
+
+    static Logger logger = Logger.getLogger("Pubsub.Read");
 
     @VisibleForTesting
     Subscriber subscriber;
@@ -30,6 +35,7 @@ public class Pubsub {
                 if (exception == null) {
                   consumer.ack();
                 } else {
+                  logger.log(WARNING, "Exception while attempting to deliver message:", exception);
                   consumer.nack();
                 }
               })))

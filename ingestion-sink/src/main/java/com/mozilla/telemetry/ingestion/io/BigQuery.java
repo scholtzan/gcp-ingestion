@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 public class BigQuery {
 
@@ -35,16 +36,28 @@ public class BigQuery {
 
   public static class Write implements Function<Write.TableRow, CompletableFuture<Write.TableRow>> {
 
+    private static final Logger logger = Logger.getLogger("BigQuery.Write");
+
     private final com.google.cloud.bigquery.BigQuery bigquery;
-    private final int maxBytes = 10_000_000; // HTTP request size limit: 10 MB
-    private final int maxMessages = 10_000; // Maximum rows per request: 10,000
-    private final long maxDelayMillis = 1000; // Default to 1 second
+    private final int maxBytes;
+    private final int maxMessages;
+    private final long maxDelayMillis;
 
     @VisibleForTesting
     final ConcurrentMap<TableId, Batch> batches = new ConcurrentHashMap<>();
 
     public Write(com.google.cloud.bigquery.BigQuery bigquery) {
+      this(bigquery, 10_000_000, // HTTP request size limit: 10 MB
+          10_000, // Maximum rows per request: 10,000
+          100); // Default 0.1 second
+    }
+
+    public Write(com.google.cloud.bigquery.BigQuery bigquery, int maxBytes, int maxMessages,
+        long maxDelayMillis) {
       this.bigquery = bigquery;
+      this.maxBytes = maxBytes;
+      this.maxMessages = maxMessages;
+      this.maxDelayMillis = maxDelayMillis;
     }
 
     @Override
@@ -137,7 +150,8 @@ public class BigQuery {
         int index = newSize - 1;
         return Optional.of(result.thenApplyAsync(r -> {
           List<BigQueryError> errors = r.getErrorsFor(index);
-          if (!errors.isEmpty()) {
+          if (errors != null && !errors.isEmpty()) {
+            logger.warning(errors.toString());
             throw new WriteErrors(errors);
           }
           return row;
