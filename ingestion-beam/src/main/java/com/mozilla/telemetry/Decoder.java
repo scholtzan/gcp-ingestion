@@ -1,13 +1,6 @@
 package com.mozilla.telemetry;
 
-import com.mozilla.telemetry.decoder.AddMetadata;
-import com.mozilla.telemetry.decoder.DecoderOptions;
-import com.mozilla.telemetry.decoder.Deduplicate;
-import com.mozilla.telemetry.decoder.GeoCityLookup;
-import com.mozilla.telemetry.decoder.ParsePayload;
-import com.mozilla.telemetry.decoder.ParseProxy;
-import com.mozilla.telemetry.decoder.ParseUri;
-import com.mozilla.telemetry.decoder.ParseUserAgent;
+import com.mozilla.telemetry.decoder.*;
 import com.mozilla.telemetry.transforms.DecompressPayload;
 import com.mozilla.telemetry.transforms.DeduplicateByDocumentId;
 import com.mozilla.telemetry.transforms.LimitPayloadSize;
@@ -57,10 +50,11 @@ public class Decoder extends Sink {
     Optional.of(pipeline) //
         .map(p -> p //
             .apply(options.getInputType().read(options)) //
-            // We apply ParseProxy and GeoCityLookup first so that IP address is already removed
-            // before any message gets routed to error output; see
+            // We apply ParseProxy and GeoCityLookup and GeoIspLookup first so that IP
+            // address is already removed before any message gets routed to error output; see
             // https://github.com/mozilla/gcp-ingestion/issues/1096
             .apply(ParseProxy.of()) //
+            .apply(GeoIspLookup.of(options.getGeoIspDatabase())) //
             .apply(GeoCityLookup.of(options.getGeoCityDatabase(), options.getGeoCityFilter())) //
             .apply("ParseUri", ParseUri.of()).failuresTo(failureCollections) //
             .apply(DecompressPayload.enabled(options.getDecompressInputPayloads())) //
