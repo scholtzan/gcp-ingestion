@@ -37,6 +37,7 @@ public class DecoderMainTest extends TestWithDeterministicJson {
         "--outputFileFormat=json", "--outputType=file", "--output=" + output,
         "--errorOutputType=file", "--errorOutput=" + errorOutput,
         "--geoCityDatabase=src/test/resources/cityDB/GeoIP2-City-Test.mmdb",
+        "--geoIspDatabase=src/test/resources/ispDB/GeoIP2-ISP-Test.mmdb",
         "--schemasLocation=schemas.tar.gz", "--errorOutputFileCompression=UNCOMPRESSED" });
 
     List<String> errorOutputLines = Lines.files(errorOutput + "*.ndjson");
@@ -56,9 +57,13 @@ public class DecoderMainTest extends TestWithDeterministicJson {
         "--errorOutputType=file", "--errorOutput=" + errorOutput, "--includeStackTrace=false",
         "--outputFileCompression=UNCOMPRESSED", "--errorOutputFileCompression=UNCOMPRESSED",
         "--geoCityDatabase=src/test/resources/cityDB/GeoIP2-City-Test.mmdb",
+        "--geoIspDatabase=src/test/resources/ispDB/GeoIP2-ISP-Test.mmdb",
         "--schemasLocation=schemas.tar.gz", "--redisUri=" + redis.uri });
 
     List<String> outputLines = Lines.files(output + "*.ndjson");
+
+    System.out.println(outputLines);
+
     List<String> expectedOutputLines = Lines.files(resourceDir + "/output.ndjson");
     assertThat("Main output differed from expectation", outputLines,
         matchesInAnyOrder(expectedOutputLines));
@@ -82,6 +87,7 @@ public class DecoderMainTest extends TestWithDeterministicJson {
         "--outputFileCompression=UNCOMPRESSED", "--errorOutputType=file",
         "--errorOutput=" + errorOutput, "--includeStackTrace=false",
         "--geoCityDatabase=src/test/resources/cityDB/GeoIP2-City-Test.mmdb",
+        "--geoIspDatabase=src/test/resources/ispDB/GeoIP2-ISP-Test.mmdb",
         "--schemasLocation=schemas.tar.gz", "--redisUri=" + redis.uri });
 
     List<String> outputLines = Lines.files(output + "*.ndjson");
@@ -107,6 +113,7 @@ public class DecoderMainTest extends TestWithDeterministicJson {
         "--includeStackTrace=false", "--outputFileCompression=UNCOMPRESSED",
         "--errorOutputFileCompression=UNCOMPRESSED",
         "--geoCityDatabase=src/test/resources/cityDB/GeoIP2-City-Test.mmdb",
+        "--geoIspDatabase=src/test/resources/ispDB/GeoIP2-ISP-Test.mmdb",
         "--schemasLocation=schemas.tar.gz", "--redisUri=" + redis.uri });
 
     Decoder.main(new String[] { "--inputFileFormat=json", "--inputType=file", //
@@ -117,6 +124,7 @@ public class DecoderMainTest extends TestWithDeterministicJson {
         "--includeStackTrace=false", "--outputFileCompression=UNCOMPRESSED",
         "--errorOutputFileCompression=UNCOMPRESSED",
         "--geoCityDatabase=src/test/resources/cityDB/GeoIP2-City-Test.mmdb",
+        "--geoIspDatabase=src/test/resources/ispDB/GeoIP2-ISP-Test.mmdb",
         "--schemasLocation=schemas.tar.gz", "--redisUri=" + redis.uri });
 
     List<String> outputLines = Lines.files(output + "*.ndjson");
