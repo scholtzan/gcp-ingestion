@@ -21,6 +21,12 @@ for the ingestion sources and wire formats in more detail.
 
 These transforms are currently executed against each message in order.
 
+### Deduplicate
+
+Deduplicate messages by `uri`, dropping the payload and publishing only
+metadata to the error output for duplicates. Disabled for the
+`stub_installer` pipeline family.
+
 ### GeoIP Lookup
 
 1. Extract `ip` from the `x_forwarded_for` attribute
